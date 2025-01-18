@@ -141,11 +141,18 @@ Request:
 ==================
 Answer:`;
 
+
+export const DEFAULT_FORMATT_EMAIL_TEMPLATE = `
+You are a helpful AI assistant that can, given a piece of text and a request generate an answer using markdown.
+
+`;
+
 // PROMPT COMMANDS
 export const SELECTION_COMMAND_NAME = "Rewrite selection";
 export const DOC_COMMAND_NAME = "Rewrite document";
 export const CURSOR_COMMAND_NAME = "Generate content at cursor";
 export const YT_TRANSCRIPT_COMMAND_NAME = "Generate from YouTube link";
+export const FORMATT_EMAIL_COMMAND_NAME = "Format email";
 
 export const SELECTION_COMMAND_SUBTITLE =
     "Write your prompt to rewrite the selected text. Ex. 'Add more options', 'summarize the text', etc.";
@@ -155,6 +162,9 @@ export const CURSOR_COMMAND_SUBTITLE =
     "Give request to generate content at the cursor. Ex. 'Write a joke', 'Explain the concept of ...', etc.";
 export const YT_TRANSCRIPT_COMMAND_SUBTITLE =
     "Add link to a YouTube video and write your request. Be aware that the transcription from the YouTube video is used, so make sure that this is available or viable. Ex. 'Summarize the main points', 'Write down the recipe for ...', etc.";
+
+export const FORMATT_EMAIL_COMMAND_SUBTITLE =
+    "Nicely Format your email content given a set of bulletpoints.";
 
 export const PROMPT_COMMANDS: {
     name: string;
@@ -181,6 +191,11 @@ export const PROMPT_COMMANDS: {
         id: "prompt-generate-from-yt-transcript",
         type: "youtube",
     },
+    {
+        name: FORMATT_EMAIL_COMMAND_NAME,
+        id: "prompt-format-email",
+        type: "email"
+    }
 ];
 
 // SETTINGS
@@ -202,6 +217,7 @@ export const DEFAULT_SETTINGS: SimplePromptPluginSettings = {
         cursor: DEFAULT_CURSOR_PROMPT_TEMPLATE,
         document: DEFAULT_REWRITE_DOCUMENT_TEMPLATE,
         youtube: DEFAULT_YT_TRANSCRIPT_PROMPT_TEMPLATE,
+        email: DEFAULT_FORMATT_EMAIL_TEMPLATE
     },
     streaming: false,
 };

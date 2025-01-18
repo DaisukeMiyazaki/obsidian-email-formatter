@@ -1,10 +1,10 @@
 {
-	"id": "simple-prompt",
-	"name": "Simple Prompt",
+	"id": "obsidian-email-formatter",
+	"name": "Email Formatter",
 	"version": "1.0.1",
 	"minAppVersion": "1.5.12",
 	"description": "Simple interface to generate or rewrite content using LLMs based on user input.",
-	"author": "arumie",
+	"author": "DaisukeMiyazaki",
 	"authorUrl": "https://github.com/arumie",
 	"isDesktopOnly": false
 }

@@ -12,6 +12,9 @@ import {
     SELECTION_COMMAND_SUBTITLE,
     YT_TRANSCRIPT_COMMAND_NAME,
     YT_TRANSCRIPT_COMMAND_SUBTITLE,
+    FORMATT_EMAIL_COMMAND_NAME,
+    FORMATT_EMAIL_COMMAND_SUBTITLE
+
 } from "../constants";
 import { CommandType } from "../types";
 
@@ -117,6 +120,9 @@ export default class PromptModal extends Modal {
                                 ytLinkInput,
                             );
                         }
+                    case "email":
+                        await this.generateForEmail(textarea);
+                        break;
                 }
             } catch (e) {
                 notice(`Unexpected Error: ${e}`);
@@ -146,6 +152,8 @@ export default class PromptModal extends Modal {
                 return DOC_COMMAND_NAME;
             case "youtube":
                 return YT_TRANSCRIPT_COMMAND_NAME;
+            case "email":
+                return FORMATT_EMAIL_COMMAND_NAME;
             default:
                 return "Generate content";
         }
@@ -161,6 +169,8 @@ export default class PromptModal extends Modal {
                 return DOC_COMMAND_SUBTITLE;
             case "youtube":
                 return YT_TRANSCRIPT_COMMAND_SUBTITLE;
+            case "email":
+                return FORMATT_EMAIL_COMMAND_SUBTITLE;
             default:
                 return "Generate content";
         }
@@ -239,6 +249,35 @@ export default class PromptModal extends Modal {
     }
 
     private async generateForDocument(textarea: HTMLTextAreaElement) {
+        const prompt = this.plugin.settings.promptTemplates.document
+            .replace("<DOCUMENT>", `${this.editor.getValue()}`)
+            .replace("<REQUEST>", `${textarea.value}`);
+
+        if (this.plugin.settings.streaming) {
+            const onStart = () => {
+                this.editor.setValue("");
+                this.close();
+            };
+            const onEnd = () => {
+                this.saveRecentPrompt(textarea);
+                notice("Action complete!");
+            };
+            await generateStreaming(
+                this.plugin,
+                prompt,
+                (chunk) => this.handleChunk(chunk),
+                onStart,
+                onEnd,
+            );
+        } else {
+            await generate(this.plugin, prompt, (result) => {
+                this.editor.setValue(result);
+                this.saveRecentPrompt(textarea);
+            });
+        }
+    }
+
+    private async generateForEmail(textarea: HTMLTextAreaElement) {
         const prompt = this.plugin.settings.promptTemplates.document
             .replace("<DOCUMENT>", `${this.editor.getValue()}`)
             .replace("<REQUEST>", `${textarea.value}`);

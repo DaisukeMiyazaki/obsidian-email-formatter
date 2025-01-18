@@ -26,7 +26,7 @@ export type LlmModelType = {
 export type LlmProviderApiKeyType = "openai";
 export type LlmProviderType = "ollama" | LlmProviderApiKeyType;
 
-export type CommandType = "selection" | "cursor" | "document" | "youtube";
+export type CommandType = "selection" | "cursor" | "document" | "youtube" | "email";
 
 export interface SimplePromptPluginSettings {
     settingsVersion: number;
