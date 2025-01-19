@@ -144,8 +144,42 @@ Answer:`;
 
 export const DEFAULT_FORMATT_EMAIL_TEMPLATE = `
 You are a helpful AI assistant that can, given a piece of text and a request generate an answer using markdown.
+Also add the necessary starting and closing lines to make the email look nice.
+Leave the receiever's name and the sender's name as XXX.
 
-`;
+Make sure it is in Japanese.
+====================================
+Example:
+
+Text:
+==================
+# Email Bulletpoints
+- お誘いありがたい
+- 仕事が忙しい
+- 申し訳ない
+==================
+Request:
+==================
+Format the email nicely and make it very formal in Japanese
+==================
+Email:
+XXX 様
+お誘いいただきありがとうございます。
+ぜひ参加させていただきたいのですが生憎仕事の予定が入ってしまっており、参加できそうにありません。
+またの機会にお誘いいただけると幸いです。
+
+以上、よろしくお願いいたします。
+====================================    
+
+Text: 
+==================
+<SELECTION>
+==================
+Request: 
+==================
+<REQUEST>
+==================
+Answer:`;
 
 // PROMPT COMMANDS
 export const SELECTION_COMMAND_NAME = "Rewrite selection";

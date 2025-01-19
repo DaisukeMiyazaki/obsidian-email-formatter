@@ -3,8 +3,8 @@
 	"name": "Email Formatter",
 	"version": "1.0.1",
 	"minAppVersion": "1.5.12",
-	"description": "Simple interface to generate or rewrite content using LLMs based on user input.",
+	"description": "Simple email formatter using LLMs.",
 	"author": "DaisukeMiyazaki",
-	"authorUrl": "https://github.com/arumie",
+	"authorUrl": "https://github.com/DaisukeMiyazaki",
 	"isDesktopOnly": false
 }

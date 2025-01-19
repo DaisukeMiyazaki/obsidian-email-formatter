@@ -9,6 +9,7 @@ import PromptModal from "./modals/prompt-modal";
 import SimplePromptSettingTab from "./settings";
 import { SimplePromptPluginSettings } from "./types";
 import { notice } from "./utils";
+import { generate } from "./llms/generate";
 
 export default class SimplePromptPlugin extends Plugin {
     settings: SimplePromptPluginSettings;
@@ -54,6 +55,9 @@ export default class SimplePromptPlugin extends Plugin {
         });
 
         for (const c of PROMPT_COMMANDS) {
+            if (c.type === "email") {
+                continue;
+            }
             this.addCommand({
                 id: c.id,
                 name: c.name,
@@ -62,6 +66,24 @@ export default class SimplePromptPlugin extends Plugin {
                 },
             });
         }
+        this.addCommand({
+            id: "prompt-format-email",
+            name: "prompt-format-email v2",
+            callback: async () => {
+                // call generateForEmail
+                const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view) {
+                    return;
+                }
+                const editor = view.editor;
+                const input = editor.getSelection();
+
+                notice("Generating email content...");
+                await this.generateForEmail(editor, input);
+
+            }
+        }
+        )
 
         this.addSettingTab(new SimplePromptSettingTab(this.app, this));
     }
@@ -95,5 +117,19 @@ export default class SimplePromptPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+    }
+
+    async generateForEmail(editor: Editor, input?: string) {
+        const prompt = this.settings.promptTemplates.document
+            .replace("<SELECTION>", `${editor.getValue()}`)
+            .replace("<REQUEST>", `${input ?? ""}`);
+
+        await generate(this, prompt, (result) => {
+            // this.saveRecentPrompt(textarea);
+            editor.replaceSelection
+                ? editor.replaceSelection(result)
+                : editor.setValue(result);
+            notice("Email content generated successfully");
+        });
     }
 }
