@@ -1,14 +1,15 @@
 # Simple Email Formatter
 
 # Shout out to its oritinal project
-This project is heavily inspired by [[]] and this codebase is almost identical to the project. Huge thank you to this project and its contributors.
+This project is heavily inspired by [
+obsidian-simple-prompt-plugin](https://github.com/arumie/obsidian-simple-prompt-plugin) and this codebase is almost identical to the project. Huge thank you to this project and its contributors.
 
-# What is this project about
+# What is this project
 This is a simple email formatter. You write a set of bulletpoints of your email in its simpliest form and this plugin helps it to sound from extremely casual to passible / professional.
 
-## Why this project
+# Why this project
 
-Writing email takes some mental space, but for at least my case it does for formalizing it. I can response the gist right away if I can dismiss the formality, so this plugin will come handy to lift some weight on that.
+Writing email takes some mental space, but for at least my case it does for formalizing it. I can response the gist right away if I can dismiss the formality, so this plugin will come handy to lift some weight on that. Currenlty the prompt is set to Japanse rewriting.
 
 
 ## How to use

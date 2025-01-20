@@ -1,3 +1,4 @@
+// currently this template is not used in the plugin
 import { Editor, Modal, Setting } from "obsidian";
 import { generate, generateStreaming } from "src/llms/generate";
 import SimplePromptPlugin from "src/main";
@@ -279,7 +280,7 @@ export default class PromptModal extends Modal {
 
     private async generateForEmail(textarea: HTMLTextAreaElement) {
         const prompt = this.plugin.settings.promptTemplates.document
-            .replace("<DOCUMENT>", `${this.editor.getValue()}`)
+            .replace("<SELECTION>", `${this.editor.getValue()}`)
             .replace("<REQUEST>", `${textarea.value}`);
 
         if (this.plugin.settings.streaming) {

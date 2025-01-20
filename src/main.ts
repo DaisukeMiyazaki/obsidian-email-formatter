@@ -2,10 +2,7 @@ import { Editor, MarkdownView, Plugin } from "obsidian";
 import {
     DEFAULT_SETTINGS,
     PROMPT_COMMANDS,
-    SETTINGS_TOGGLE_RECENT_PROMPTS_COMMAND_NAME,
-    SETTINGS_TOGGLE_STREAMING_COMMAND_NAME,
 } from "./constants";
-import PromptModal from "./modals/prompt-modal";
 import SimplePromptSettingTab from "./settings";
 import { SimplePromptPluginSettings } from "./types";
 import { notice } from "./utils";
@@ -18,57 +15,8 @@ export default class SimplePromptPlugin extends Plugin {
         await this.loadSettings();
 
         this.addCommand({
-            id: "settings-toggle-llm-streaming",
-            name: SETTINGS_TOGGLE_STREAMING_COMMAND_NAME,
-            callback: async () => {
-                if (this.settings.provider === "ollama") {
-                    notice(
-                        "Streaming is not supported for Ollama at this time.",
-                    );
-                    return;
-                }
-                this.settings.streaming = !this.settings.streaming;
-                await this.saveSettings();
-                notice(
-                    `Streaming LLM responses is now ${
-                        this.settings.streaming ? "enabled" : "disabled"
-                    }`,
-                );
-            },
-        });
-
-        this.addCommand({
-            id: "settings-toggle-recent-prompts",
-            name: SETTINGS_TOGGLE_RECENT_PROMPTS_COMMAND_NAME,
-            callback: async () => {
-                this.settings.recentPromptsEnabled =
-                    !this.settings.recentPromptsEnabled;
-                await this.saveSettings();
-                notice(
-                    `Recent prompts are now ${
-                        this.settings.recentPromptsEnabled
-                            ? "enabled"
-                            : "disabled"
-                    }`,
-                );
-            },
-        });
-
-        for (const c of PROMPT_COMMANDS) {
-            if (c.type === "email") {
-                continue;
-            }
-            this.addCommand({
-                id: c.id,
-                name: c.name,
-                editorCallback: (editor: Editor, _: MarkdownView) => {
-                    new PromptModal(this, editor, c.type).open();
-                },
-            });
-        }
-        this.addCommand({
             id: "prompt-format-email",
-            name: "prompt-format-email v2",
+            name: "prompt-format-email",
             callback: async () => {
                 // call generateForEmail
                 const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -125,7 +73,6 @@ export default class SimplePromptPlugin extends Plugin {
             .replace("<REQUEST>", `${input ?? ""}`);
 
         await generate(this, prompt, (result) => {
-            // this.saveRecentPrompt(textarea);
             editor.replaceSelection
                 ? editor.replaceSelection(result)
                 : editor.setValue(result);

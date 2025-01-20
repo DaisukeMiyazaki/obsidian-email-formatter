@@ -12,6 +12,7 @@ import {
     DOC_COMMAND_NAME,
     SELECTION_COMMAND_NAME,
     YT_TRANSCRIPT_COMMAND_NAME,
+    FORMATT_EMAIL_COMMAND_NAME
 } from "./constants";
 import SimplePromptPlugin from "./main";
 import TemplateModal from "./modals/template-modal";
@@ -151,36 +152,7 @@ class SimplePromptSettingTab extends PluginSettingTab {
                     });
             });
 
-        if (this.plugin.settings.provider === "openai") {
-            new Setting(containerEl)
-                .setName("Streaming")
-                .setDesc("Enable streaming of responses from LLMs")
-                .addToggle((toggle) =>
-                    toggle
-                        .setValue(this.plugin.settings.streaming)
-                        .onChange(async (value) => {
-                            this.plugin.settings.streaming = value;
-                            await this.plugin.saveSettings();
-                        }),
-                );
-        }
 
-        new Setting(containerEl).setHeading().setName("Recent Prompts");
-        new Setting(containerEl)
-            .setName("Limit")
-            .setDesc("How many recent prompts to store")
-            .addSlider((slider) =>
-                slider
-                    .setLimits(1, 20, 1)
-                    .setDynamicTooltip()
-                    .setValue(this.plugin.settings.recentsLimit)
-                    .onChange(async (value) => {
-                        this.plugin.settings.recentsLimit = value;
-                        this.plugin.settings.recentPrompts =
-                            this.plugin.settings.recentPrompts.slice(0, value);
-                        await this.plugin.saveSettings();
-                    }),
-            );
         new Setting(containerEl)
             .setName("Enable/Disable")
             .setDesc("Enable/Disable recent prompts")
@@ -207,6 +179,7 @@ class SimplePromptSettingTab extends PluginSettingTab {
                         cursor: CURSOR_COMMAND_NAME,
                         document: DOC_COMMAND_NAME,
                         youtube: YT_TRANSCRIPT_COMMAND_NAME,
+                        email: FORMATT_EMAIL_COMMAND_NAME
                     })
                     .setValue("selection")
                     .onChange(async (value: CommandType) => {
