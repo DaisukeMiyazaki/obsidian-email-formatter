@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-email-formatter",
+	"id": "email-formatter",
 	"name": "Email Formatter",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "1.5.12",
 	"description": "Simple email formatter using LLMs.",
 	"author": "DaisukeMiyazaki",
