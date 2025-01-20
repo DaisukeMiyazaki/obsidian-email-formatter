@@ -1,9 +1,6 @@
 import { Modal } from "obsidian";
 import {
-    CURSOR_COMMAND_NAME,
-    DOC_COMMAND_NAME,
-    SELECTION_COMMAND_NAME,
-    YT_TRANSCRIPT_COMMAND_NAME,
+    FORMATT_EMAIL_COMMAND_NAME
 } from "src/constants";
 import SimplePromptPlugin from "src/main";
 import { CommandType } from "src/types";
@@ -38,7 +35,7 @@ export default class TemplateModal extends Modal {
         const desc = wrapper.createEl("p", {
             text: `Define the prompt templates used for generating content.
             
-            Don't delete the placeholders like <SELECTION>, <DOCUMENT>, <REQUEST>, <QUERY> etc.
+            Don't delete the placeholders like <BULLETPOINTS>, <LANGUAGE> etc.
            `,
         });
         desc.addClasses(["pr-text-xs", "pr-mb-5", "pr-text-slate-400"]);
@@ -75,47 +72,20 @@ export default class TemplateModal extends Modal {
 
     getTitle() {
         switch (this.type) {
-            case "document":
-                return DOC_COMMAND_NAME;
-            case "cursor":
-                return CURSOR_COMMAND_NAME;
-            case "selection":
-                return SELECTION_COMMAND_NAME;
-            case "youtube":
-                return YT_TRANSCRIPT_COMMAND_NAME;
+            case "email":
+                return FORMATT_EMAIL_COMMAND_NAME;
         }
     }
 
     validateTemplate(value: string): boolean {
         switch (this.type) {
-            case "document":
+            case "email":
                 if (
-                    !value.includes("<DOCUMENT>") ||
-                    !value.includes("<REQUEST>")
+                    !value.includes("<BULLETPOINTS>") ||
+                    !value.includes("<LANGUAGE>")
                 ) {
                     const errorMsg =
-                        "Document prompt template must include <DOCUMENT> and <REQUEST>";
-                    console.error(errorMsg);
-                    notice(errorMsg);
-                    return false;
-                }
-                break;
-            case "selection":
-                if (
-                    !value.includes("<SELECTION>") ||
-                    !value.includes("<REQUEST>")
-                ) {
-                    const errorMsg =
-                        "Selection prompt template must include <SELECTION> and <REQUEST>";
-                    console.error(errorMsg);
-                    notice(errorMsg);
-                    return false;
-                }
-                break;
-            case "cursor":
-                if (!value.includes("<QUERY>")) {
-                    const errorMsg =
-                        "Cursor prompt template must include <QUERY>";
+                        "Email prompt template must include <BULLETPOINTS> and <LANGUAGE>";
                     console.error(errorMsg);
                     notice(errorMsg);
                     return false;

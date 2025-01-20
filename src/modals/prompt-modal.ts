@@ -1,18 +1,8 @@
 // currently this template is not used in the plugin
 import { Editor, Modal, Setting } from "obsidian";
-import { generate, generateStreaming } from "src/llms/generate";
 import SimplePromptPlugin from "src/main";
 import { notice } from "src/utils";
-import { VideoResponse, YoutubeTranscript } from "src/youtube-transcript";
 import {
-    CURSOR_COMMAND_NAME,
-    CURSOR_COMMAND_SUBTITLE,
-    DOC_COMMAND_NAME,
-    DOC_COMMAND_SUBTITLE,
-    SELECTION_COMMAND_NAME,
-    SELECTION_COMMAND_SUBTITLE,
-    YT_TRANSCRIPT_COMMAND_NAME,
-    YT_TRANSCRIPT_COMMAND_SUBTITLE,
     FORMATT_EMAIL_COMMAND_NAME,
     FORMATT_EMAIL_COMMAND_SUBTITLE
 
@@ -31,7 +21,7 @@ export default class PromptModal extends Modal {
         super(plugin.app);
         this.editor = editor;
         this.plugin = plugin;
-        this.type = type ?? "selection";
+        this.type = type ?? "email";
     }
 
     onOpen() {
@@ -61,29 +51,10 @@ export default class PromptModal extends Modal {
             "pr-opacity-50",
         ]);
 
-        let ytLinkInput: HTMLInputElement | null = null;
-        if (this.type === "youtube") {
-            ytLinkInput = wrapper.createEl("input", {
-                type: "text",
-                placeholder: "YouTube link",
-            });
-
-            ytLinkInput.addClasses([
-                "pr-p-2",
-                "pr-border",
-                "pr-rounded-md",
-                "pr-w-full",
-                "pr-mb-5",
-            ]);
-        }
 
         const { textarea } = this.buildPromptFields(wrapper);
 
-        if (ytLinkInput != null) {
-            ytLinkInput.focus();
-        } else {
-            textarea.focus();
-        }
+        textarea.focus();
 
         const button = wrapper.createEl("button", { text: "Generate!" });
         button.addClasses([
@@ -103,32 +74,6 @@ export default class PromptModal extends Modal {
             const loader = wrapper.createEl("span");
             wrapper.addClasses(["pr-flex", "pr-flex-col", "pr-items-center"]);
             loader.addClasses(["loading", "dots", "pr-text-xl"]);
-            try {
-                switch (this.type) {
-                    case "document":
-                        await this.generateForDocument(textarea);
-                        break;
-                    case "cursor":
-                        await this.generateAtCursor(textarea);
-                        break;
-                    case "selection":
-                        await this.generateForSelection(textarea);
-                        break;
-                    case "youtube":
-                        if (ytLinkInput != null) {
-                            await this.generateForYoutube(
-                                textarea,
-                                ytLinkInput,
-                            );
-                        }
-                    case "email":
-                        await this.generateForEmail(textarea);
-                        break;
-                }
-            } catch (e) {
-                notice(`Unexpected Error: ${e}`);
-                return;
-            }
 
             this.close();
         });
@@ -145,14 +90,6 @@ export default class PromptModal extends Modal {
 
     private getTitle(): string | DocumentFragment | undefined {
         switch (this.type) {
-            case "cursor":
-                return CURSOR_COMMAND_NAME;
-            case "selection":
-                return SELECTION_COMMAND_NAME;
-            case "document":
-                return DOC_COMMAND_NAME;
-            case "youtube":
-                return YT_TRANSCRIPT_COMMAND_NAME;
             case "email":
                 return FORMATT_EMAIL_COMMAND_NAME;
             default:
@@ -162,14 +99,6 @@ export default class PromptModal extends Modal {
 
     private getSubtitle(): string | DocumentFragment | undefined {
         switch (this.type) {
-            case "cursor":
-                return CURSOR_COMMAND_SUBTITLE;
-            case "selection":
-                return SELECTION_COMMAND_SUBTITLE;
-            case "document":
-                return DOC_COMMAND_SUBTITLE;
-            case "youtube":
-                return YT_TRANSCRIPT_COMMAND_SUBTITLE;
             case "email":
                 return FORMATT_EMAIL_COMMAND_SUBTITLE;
             default:
@@ -247,186 +176,6 @@ export default class PromptModal extends Modal {
             "pr-border-y-slate-200",
         ]);
         return { textarea };
-    }
-
-    private async generateForDocument(textarea: HTMLTextAreaElement) {
-        const prompt = this.plugin.settings.promptTemplates.document
-            .replace("<DOCUMENT>", `${this.editor.getValue()}`)
-            .replace("<REQUEST>", `${textarea.value}`);
-
-        if (this.plugin.settings.streaming) {
-            const onStart = () => {
-                this.editor.setValue("");
-                this.close();
-            };
-            const onEnd = () => {
-                this.saveRecentPrompt(textarea);
-                notice("Action complete!");
-            };
-            await generateStreaming(
-                this.plugin,
-                prompt,
-                (chunk) => this.handleChunk(chunk),
-                onStart,
-                onEnd,
-            );
-        } else {
-            await generate(this.plugin, prompt, (result) => {
-                this.editor.setValue(result);
-                this.saveRecentPrompt(textarea);
-            });
-        }
-    }
-
-    private async generateForEmail(textarea: HTMLTextAreaElement) {
-        const prompt = this.plugin.settings.promptTemplates.document
-            .replace("<SELECTION>", `${this.editor.getValue()}`)
-            .replace("<REQUEST>", `${textarea.value}`);
-
-        if (this.plugin.settings.streaming) {
-            const onStart = () => {
-                this.editor.setValue("");
-                this.close();
-            };
-            const onEnd = () => {
-                this.saveRecentPrompt(textarea);
-                notice("Action complete!");
-            };
-            await generateStreaming(
-                this.plugin,
-                prompt,
-                (chunk) => this.handleChunk(chunk),
-                onStart,
-                onEnd,
-            );
-        } else {
-            await generate(this.plugin, prompt, (result) => {
-                this.editor.setValue(result);
-                this.saveRecentPrompt(textarea);
-            });
-        }
-    }
-
-    private async generateAtCursor(textarea: HTMLTextAreaElement) {
-        const prompt = this.plugin.settings.promptTemplates.cursor.replace(
-            "<QUERY>",
-            `${textarea.value}`,
-        );
-
-        await this.generateAtCursorWithPrompt(textarea, prompt);
-    }
-    private async generateForSelection(textarea: HTMLTextAreaElement) {
-        const prompt = this.plugin.settings.promptTemplates.selection
-            .replace("<SELECTION>", `${this.editor.getSelection()}`)
-            .replace("<REQUEST>", `${textarea.value}`);
-        if (this.plugin.settings.streaming) {
-            const onStart = () => {
-                this.editor.replaceSelection("");
-                this.close();
-            };
-            const onEnd = () => {
-                this.saveRecentPrompt(textarea);
-                notice("Action complete!");
-            };
-            await generateStreaming(
-                this.plugin,
-                prompt,
-                (chunk) => this.handleChunk(chunk),
-                onStart,
-                onEnd,
-            );
-        } else {
-            await generate(this.plugin, prompt, (result) => {
-                this.editor.replaceSelection(result);
-                this.saveRecentPrompt(textarea);
-            });
-        }
-    }
-
-    private async generateForYoutube(
-        textarea: HTMLTextAreaElement,
-        input: HTMLInputElement,
-    ) {
-        const link = input.value;
-        notice("Fetching transcript from YouTube");
-        const videoData: VideoResponse = await YoutubeTranscript.fetchVideoData(
-            link,
-            {
-                lang: "en",
-            },
-        );
-
-        const prompt = this.plugin.settings.promptTemplates.youtube
-            .replace("<TITLE>", videoData.videoDetails.title ?? "")
-            .replace("<AUTHOR>", videoData.videoDetails.author ?? "")
-            .replace(
-                "<KEYWORDS>",
-                videoData.videoDetails.keywords?.join(", ") ?? "",
-            )
-            .replace(
-                "<TRANSCRIPT>",
-                videoData.transcript.map((t) => t.text).join(" "),
-            )
-            .replace("<REQUEST>", `${textarea.value}`);
-
-        await this.generateAtCursorWithPrompt(textarea, prompt);
-    }
-
-    private async generateAtCursorWithPrompt(
-        textarea: HTMLTextAreaElement,
-        prompt: string,
-    ) {
-        if (this.plugin.settings.streaming) {
-            const onStart = () => {
-                this.close();
-            };
-            const onEnd = () => {
-                this.saveRecentPrompt(textarea);
-                notice("Action complete!");
-            };
-            await generateStreaming(
-                this.plugin,
-                prompt,
-                (chunk) => this.handleChunk(chunk),
-                onStart,
-                onEnd,
-            );
-        } else {
-            await generate(this.plugin, prompt, (result) => {
-                this.editor.replaceRange(
-                    result,
-                    this.editor.getCursor(),
-                    this.editor.getCursor(),
-                );
-                this.saveRecentPrompt(textarea);
-            });
-        }
-    }
-
-    private handleChunk(chunk: string) {
-        const cursorPos = this.editor.getCursor();
-        this.editor.replaceRange(chunk, cursorPos, cursorPos);
-        this.editor.setCursor(cursorPos.line, cursorPos.ch + chunk.length);
-    }
-
-    private saveRecentPrompt(textarea: HTMLTextAreaElement) {
-        if (textarea.value !== "") {
-            if (!this.plugin.settings.recentPrompts.includes(textarea.value)) {
-                const newLength = this.plugin.settings.recentPrompts.unshift(
-                    textarea.value,
-                );
-                if (newLength > this.plugin.settings.recentsLimit) {
-                    this.plugin.settings.recentPrompts.pop();
-                }
-            } else {
-                const index = this.plugin.settings.recentPrompts.indexOf(
-                    textarea.value,
-                );
-                this.plugin.settings.recentPrompts.splice(index, 1);
-                this.plugin.settings.recentPrompts.unshift(textarea.value);
-            }
-            this.plugin.saveSettings();
-        }
     }
 
     onClose() {

@@ -26,7 +26,7 @@ export type LlmModelType = {
 export type LlmProviderApiKeyType = "openai";
 export type LlmProviderType = "ollama" | LlmProviderApiKeyType;
 
-export type CommandType = "selection" | "cursor" | "document" | "youtube" | "email";
+export type CommandType = "email";
 
 export interface SimplePromptPluginSettings {
     settingsVersion: number;
@@ -40,6 +40,7 @@ export interface SimplePromptPluginSettings {
     recentPromptsEnabled: boolean;
     promptTemplates: Record<CommandType, string>;
     streaming: boolean;
+    language: string;
 }
 
 /** Function with chunk of streamed response from LLM */

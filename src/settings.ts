@@ -2,20 +2,13 @@ import {
     App,
     PluginSettingTab,
     Setting,
-    TextAreaComponent,
     TextComponent,
 } from "obsidian";
 import {
     API_KEY_PROVIDERS,
-    CURSOR_COMMAND_NAME,
     DEFAULT_SETTINGS,
-    DOC_COMMAND_NAME,
-    SELECTION_COMMAND_NAME,
-    YT_TRANSCRIPT_COMMAND_NAME,
-    FORMATT_EMAIL_COMMAND_NAME
 } from "./constants";
 import SimplePromptPlugin from "./main";
-import TemplateModal from "./modals/template-modal";
 import {
     CommandType,
     LlmProviderApiKeyType,
@@ -26,6 +19,7 @@ import {
     openaiModels,
 } from "./types";
 import { notice } from "./utils";
+import TemplateModal from "./modals/template-modal";
 
 class SimplePromptSettingTab extends PluginSettingTab {
     plugin: SimplePromptPlugin;
@@ -165,33 +159,9 @@ class SimplePromptSettingTab extends PluginSettingTab {
                     }),
             );
 
-        let currentTemplate: CommandType = "selection";
+        let currentTemplate: CommandType = "email";
         new Setting(containerEl).setName("Prompt Templates").setHeading();
 
-        let promptTemplateTextArea: TextAreaComponent;
-        new Setting(containerEl)
-            .setName("Template")
-            .setDesc("Pick the template to edit")
-            .addDropdown((dropdown) =>
-                dropdown
-                    .addOptions({
-                        selection: SELECTION_COMMAND_NAME,
-                        cursor: CURSOR_COMMAND_NAME,
-                        document: DOC_COMMAND_NAME,
-                        youtube: YT_TRANSCRIPT_COMMAND_NAME,
-                        email: FORMATT_EMAIL_COMMAND_NAME
-                    })
-                    .setValue("selection")
-                    .onChange(async (value: CommandType) => {
-                        currentTemplate = value;
-                        if (promptTemplateTextArea != null) {
-                            promptTemplateTextArea.setValue(
-                                this.plugin.settings.promptTemplates[value] ??
-                                    "",
-                            );
-                        }
-                    }),
-            );
 
         new Setting(containerEl)
             .setName("Edit")
@@ -221,6 +191,19 @@ class SimplePromptSettingTab extends PluginSettingTab {
                         this.plugin.saveSettings();
                     }),
             );
+        
+        new Setting(containerEl)
+            .setName("Language")
+            .setDesc("Language to use for prompts")
+            .addText((text) => {
+                text.setPlaceholder("Language");
+                text.setValue("Japanese");
+                text.onChange(async (value) => {
+                    this.plugin.settings.language = value;
+                    notice("Language set successfully to " + value);
+                    await this.plugin.saveSettings();
+                });
+            });
     }
 
     display(): void {

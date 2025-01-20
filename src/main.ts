@@ -1,7 +1,6 @@
 import { Editor, MarkdownView, Plugin } from "obsidian";
 import {
     DEFAULT_SETTINGS,
-    PROMPT_COMMANDS,
 } from "./constants";
 import SimplePromptSettingTab from "./settings";
 import { SimplePromptPluginSettings } from "./types";
@@ -54,24 +53,21 @@ export default class SimplePromptPlugin extends Plugin {
             this.settings = Object.assign({}, DEFAULT_SETTINGS, userData);
         }
 
-        for (const c of PROMPT_COMMANDS) {
-            if (this.settings.promptTemplates[c.type] === undefined) {
-                this.settings.promptTemplates[c.type] =
-                    DEFAULT_SETTINGS.promptTemplates[c.type];
-                this.saveSettings();
-            }
-        }
+        this.settings.promptTemplates["email"] = DEFAULT_SETTINGS.promptTemplates["email"];
+        this.saveSettings();
     }
 
     async saveSettings() {
         await this.saveData(this.settings);
     }
 
-    async generateForEmail(editor: Editor, input?: string) {
-        const prompt = this.settings.promptTemplates.document
-            .replace("<SELECTION>", `${editor.getValue()}`)
-            .replace("<REQUEST>", `${input ?? ""}`);
+    async generateForEmail(editor: Editor, input: string) {
+        const prompt = this.settings.promptTemplates.email
+            .replace("<BULLETPOINTS>", `${input}`)
+            .replace("<LANGUAGE>", `${this.settings.language}`);
 
+        notice("Generating email content in " + this.settings.language + "...");
+        notice("prompt: " + prompt);
         await generate(this, prompt, (result) => {
             editor.replaceSelection
                 ? editor.replaceSelection(result)
